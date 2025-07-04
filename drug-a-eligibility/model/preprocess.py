@@ -9,9 +9,9 @@ def preprocess_data(fact_txn, dim_patient, dim_physician):
     df = df.merge(dim_physician, on="physician_id", how="left")
 
     # Compute derived features
-    df["days_since_symptom"] = (
-        pd.to_datetime(df["visit_date"]) - pd.to_datetime(df["symptom_start_date"])
-    ).dt.days
+    #df["days_since_symptom"] = (
+    #    pd.to_datetime(df["visit_date"]) - pd.to_datetime(df["symptom_start_date"])
+    #).dt.days
 
     # High-risk condition logic
     high_risk_conditions = [
@@ -29,7 +29,7 @@ def preprocess_data(fact_txn, dim_patient, dim_physician):
 
     # Select features
     features = [
-        "patient_id", "age", "gender", "high_risk", "days_since_symptom",
+        "patient_id", "age", "gender", "high_risk", #"days_since_symptom",
         "multiple_meds", "frequent_visits", "treated"
     ]
     df_model = df[features].dropna()
@@ -39,7 +39,7 @@ def preprocess_data(fact_txn, dim_patient, dim_physician):
 
 # Sample usage (if running as script)
 if __name__ == "__main__":
-    path = "data/DSI LT Interview Exercise - May 2025 (candidate).xlsx"
+    path = "/home/ubuntu/DrugAnalysisMLProj/drug-a-eligibility/data/DSI.xlsx"
     fact = pd.read_excel(path, sheet_name="fact_txn")
     pat = pd.read_excel(path, sheet_name="dim_patient")
     doc = pd.read_excel(path, sheet_name="dim_physician")
