@@ -28,11 +28,11 @@ data = data.merge(dim_physician, on="physician_id", how="left")
 #data["days_since_symptom"] = data["days_since_symptom"].dt.days
 
 # Identify high-risk patients
-high_risk_conditions = ["chronic_lung_disease", "cardiovascular_disease", "cancer", "immune_suppression", "obesity", "diabetes", "smoking"]
+high_risk_conditions = ["hypertension", "heart_disease", "muscle_ache", "difficulty_breathing", "obesity", "diabetes", "cough"]
 data["high_risk"] = ((data["age"] >= 65) | (data[high_risk_conditions].sum(axis=1) > 0)).astype(int)
 
 # Feature: multiple_medications
-contraindications = ["contra_drug_a", "contra_drug_b"]  # placeholder, update with real contraindications
+contraindications = ["high_contraindication", "low_contraindication"]  # placeholder, update with real contraindications
 
 data["multiple_meds"] = data[contraindications].sum(axis=1) > 1
 
