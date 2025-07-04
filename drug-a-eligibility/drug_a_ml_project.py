@@ -5,7 +5,7 @@
 import pandas as pd
 
 # Load data from Excel file
-file_path = "/drug-a-eligibility/data/DSI LT Interview Exercise - May 2025 (candidate).xlsx"
+file_path = "/home/ubuntu/DrugAnalysisMLProj/drug-a-eligibility/data/DSI.xlsx"
 fact_txn = pd.read_excel(file_path, sheet_name="fact_txn")
 dim_patient = pd.read_excel(file_path, sheet_name="dim_patient")
 dim_physician = pd.read_excel(file_path, sheet_name="dim_physician")
@@ -24,8 +24,8 @@ data = fact_txn.merge(dim_patient, on="patient_id", how="left")
 data = data.merge(dim_physician, on="physician_id", how="left")
 
 # Convert date columns and calculate days since symptom onset
-data["days_since_symptom"] = (pd.to_datetime(data["visit_date"]) - pd.to_datetime(data["symptom_start_date"]))
-data["days_since_symptom"] = data["days_since_symptom"].dt.days
+#data["days_since_symptom"] = (pd.to_datetime(data["visit_date"]) - pd.to_datetime(data["symptom_start_date"]))
+#data["days_since_symptom"] = data["days_since_symptom"].dt.days
 
 # Identify high-risk patients
 high_risk_conditions = ["chronic_lung_disease", "cardiovascular_disease", "cancer", "immune_suppression", "obesity", "diabetes", "smoking"]
@@ -41,7 +41,7 @@ data["multiple_meds"] = data[contraindications].sum(axis=1) > 1
 data["frequent_visits"] = data["visit_count_30_days"] >= 3
 
 # Final model dataset
-model_features = ["patient_id", "age", "gender", "high_risk", "days_since_symptom", "multiple_meds", "frequent_visits", "treated"]
+model_features = ["patient_id", "age", "gender", "high_risk", "multiple_meds", "frequent_visits", "treated"]
 model_df = data[model_features].dropna()
 
 ## Phase 3: Machine Learning Model
@@ -83,7 +83,6 @@ class PatientInput(BaseModel):
     age: int
     gender: str
     high_risk: int
-    days_since_symptom: int
     multiple_meds: bool
     frequent_visits: bool
 
@@ -91,8 +90,7 @@ class PatientInput(BaseModel):
 def predict(input: PatientInput):
     features = [[
         input.age, 1 if input.gender == 'M' else 0,
-        input.high_risk, input.days_since_symptom,
-        int(input.multiple_meds), int(input.frequent_visits)
+        input.high_risk, int(input.multiple_meds), int(input.frequent_visits)
     ]]
     prediction = model.predict_proba(features)[0][1]
     return {"likelihood_of_treatment": prediction}
