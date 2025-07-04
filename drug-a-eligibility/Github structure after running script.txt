@@ -1,0 +1,13 @@
+drug-a-eligibility/
+├── app/
+│   └── api/
+│       └── main.py               # FastAPI REST API
+├── model/
+│   ├── model.pkl                 # Trained model (after running train_model.py)
+│   └── preprocess.py             # Feature generation logic
+├── data/
+│   └── final_model_data.csv      # Cleaned dataset (output of preprocess.py)
+├── train_model.py                # ML training pipeline
+├── requirements.txt              # Dependencies
+├── Dockerfile                    # Docker container
+└── README.md                     # Setup, architecture, and usage guide
