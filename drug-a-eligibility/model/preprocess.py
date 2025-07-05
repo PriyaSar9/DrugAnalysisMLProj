@@ -14,10 +14,7 @@ def preprocess_data(fact_txn, dim_patient, dim_physician):
     #).dt.days
 
     # High-risk condition logic
-    high_risk_conditions = [
-        "chronic_lung_disease", "cardiovascular_disease", "cancer",
-        "immune_suppression", "obesity", "diabetes", "smoking"
-    ]
+    high_risk_conditions = ["hypertension", "heart_disease", "muscle_ache", "difficulty_breathing", "obesity", "diabetes", "cough"]
     df["high_risk"] = ((df["age"] >= 65) | (df[high_risk_conditions].sum(axis=1) > 0)).astype(int)
 
     # Example contraindication medications
