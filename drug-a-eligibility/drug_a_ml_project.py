@@ -3,6 +3,7 @@
 ## Phase 1: Data Exploration and Cleaning
 
 import pandas as pd
+import numpy as np
 
 # Load data from Excel file
 file_path = "/home/ubuntu/DrugAnalysisMLProj/drug-a-eligibility/data/DSI.xlsx"
@@ -38,7 +39,10 @@ data["multiple_meds"] = data[contraindications].sum(axis=1) > 1
 
 # Feature: recent_physician_visits
 # Assuming count_of_visits_last_30_days is available
-data["frequent_visits"] = data["visit_count_30_days"] >= 3
+df["txn_dt"] = to_datetime(data["txn_dt"])
+df = df.sort_values(by=['patient_id', 'txn_dt'])
+df['date_diff'] = df.groupby('patient_id')['txn_dt'].diff().dt.days
+data["frequent_visits"] = data["date_diff"] >= 30
 
 # Final model dataset
 model_features = ["patient_id", "age", "gender", "high_risk", "multiple_meds", "frequent_visits", "treated"]
