@@ -30,24 +30,28 @@ data = data.merge(dim_physician, on="physician_id", how="left")
 
 # Identify high-risk patients
 high_risk_conditions = ["hypertension", "heart_disease", "muscle_ache", "difficulty_breathing", "obesity", "diabetes", "cough"]
-data["high_risk"] = ((data["age"] >= 65) | (data[data["txn_desc"].isin(high_risk_conditions)] ).astype(int)
+data["high_risk"] = (data["age"] > 65) |  data["txn_desc"].isin(high_risk_conditions).astype(int)
 
 # Feature: multiple_medications
 contraindications_conditions = ["high_contraindication", "low_contraindication"]  # placeholder, update with real contraindications
-data["contraindications"] = data[data["txn_desc"].isin(contraindications_conditions)] 
+data["contraindications"] = data["txn_desc"].isin(contraindications_conditions).astype(int) 
 
-data["multiple_meds"] = data[contraindications].sum(axis=1) > 1
+data["multiple_meds"] = data["contraindications"].sum(axis=0) > 1
 
 # Feature: recent_physician_visits
 # Assuming count_of_visits_last_30_days is available
-df["txn_dt"] = to_datetime(data["txn_dt"])
-df = df.sort_values(by=['patient_id', 'txn_dt'])
-df['date_diff'] = df.groupby('patient_id')['txn_dt'].diff().dt.days
+data["txn_dt"] = pd.to_datetime(data["txn_dt"])
+data = data.sort_values(by=['patient_id', 'txn_dt'])
+data['date_diff'] = data.groupby('patient_id')['txn_dt'].diff().dt.days
 data["frequent_visits"] = data["date_diff"] >= 30
-
+data["treated"] = data["patient_id"]
+data["gender"] = data["pat_gender"].map({"M": 1, "F": 0})
 # Final model dataset
 model_features = ["patient_id", "age", "gender", "high_risk", "multiple_meds", "frequent_visits", "treated"]
 model_df = data[model_features].dropna()
+
+model_df.to_csv("data/final_model_data.csv", index=False)
+print("Saved processed data to data/final_model_data.csv")
 
 ## Phase 3: Machine Learning Model
 from sklearn.model_selection import train_test_split
@@ -58,9 +62,22 @@ X = model_df.drop(["patient_id", "treated"], axis=1)
 y = model_df["treated"]
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
+print("Tyring to Fit Model Data")
 model = RandomForestClassifier(n_estimators=100, random_state=42)
+
+print("X_train shape:", X_train.shape)
+print("X_test shape:", X_test.shape)
+print("y_train shape:", y_train.shape)
+print("y_test shape:", y_test.shape)
+
+print("X_train Type:", str(X_train.dtypes))
+print("X_test Type:", str(X_test.dtypes))
+print("y_train Type:", str(y_train.dtypes))
+print("y_test Type:", str(y_test.dtypes))
+
 model.fit(X_train, y_train)
+
+print("Model Fitment Completed")
 
 preds = model.predict(X_test)
 print(classification_report(y_test, preds))
