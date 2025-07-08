@@ -11,8 +11,7 @@ data = pd.read_csv("data/final_model_data.csv")
 
 # Define feature columns and target
 feature_cols = [
-    "age", "gender", "high_risk", "days_since_symptom",
-    "multiple_meds", "frequent_visits"
+    "age", "gender", "high_risk", "multiple_meds", "frequent_visits"
 ]
 X = data[feature_cols].copy()
 X["gender"] = X["gender"].map({"M": 1, "F": 0})  # Convert gender to numeric
